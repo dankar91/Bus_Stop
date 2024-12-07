@@ -9,6 +9,7 @@ bus_route_dict = {'14 автобус':1, '6 автобус':12, '8 тролле�
                   '7 троллейбус':7, '45 автобус':8, '63 маршрутное такси':9}
 
 
+
 def bus_arrival():
     url = 'https://maps.nskgortrans.ru/qr_code/qr_forecast_2.php?id=30'
     r = requests.get(url)
