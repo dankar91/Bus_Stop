@@ -34,7 +34,7 @@ def traffic():
      'busstop_project/parsers/traffic/croped_scr.png', target_size=(img_height, img_width)
     )
     img_array = image.img_to_array(img)
-    img_array = tf.expand_dims(img_array, 0) # Create a batch
+    img_array = tf.expand_dims(img_array, 0)
 
     predictions = model.predict(img_array)
     score = tf.nn.softmax(predictions[0])
@@ -48,7 +48,7 @@ def traffic():
     print(city, traffic_point)
 
     try:
-        # connect to exist database
+        # Присоединение к базе данных
         connection = psycopg2.connect(
             host=host,
             user=user,
@@ -81,3 +81,4 @@ def traffic():
             connection.close()
             print("[INFO] PostgreSQL connection closed")
 
+traffic()

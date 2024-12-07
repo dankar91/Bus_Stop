@@ -28,7 +28,7 @@ def bus_arrival():
     if arrival != []:
          
         try:
-            # connect to exist database
+            # Присоединение к базе данных
             connection = psycopg2.connect(
                 host=host,
                 user=user,
@@ -70,10 +70,4 @@ def bus_arrival():
         print('Транспорт не пришел')
 
 bus_arrival()
-
-from apscheduler.schedulers.blocking import BlockingScheduler
-
-scheduler = BlockingScheduler()
-scheduler.add_job(bus_arrival, 'interval', minutes=1)
-scheduler.start()
 

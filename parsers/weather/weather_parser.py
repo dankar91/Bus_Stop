@@ -18,7 +18,7 @@ def weather():
     print(city, temperature, condition)
 
     try:
-        # connect to exist database
+        # Присоединение к базе данных
         connection = psycopg2.connect(
             host=host,
             user=user,
