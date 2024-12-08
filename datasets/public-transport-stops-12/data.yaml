@@ -1,0 +1,14 @@
+names:
+- bus
+- minibus
+- person
+nc: 3
+roboflow:
+  license: CC BY 4.0
+  project: public-transport-stops
+  url: https://universe.roboflow.com/mfti/public-transport-stops/dataset/12
+  version: 12
+  workspace: mfti
+test: ../test/images
+train: public-transport-stops-12/train/images
+val: public-transport-stops-12/valid/images

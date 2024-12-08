@@ -8,7 +8,7 @@ from selenium import webdriver
 from selenium.webdriver import FirefoxOptions
 from time import sleep
 
-model=load_model('busstop_project/parsers/traffic/gfgModel.h5')
+model = load_model('busstop_project/parsers/traffic/gfgModel.h5')
 img_height = 180
 img_width = 180
 class_names = ['0', '1', '10', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -50,11 +50,11 @@ def traffic():
     try:
         # Присоединение к базе данных
         connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name,   
-            port='5434'
+            host = host,
+            user = user,
+            password = password,
+            database = db_name,   
+            port = '5434'
         )
         connection.autocommit = True
     

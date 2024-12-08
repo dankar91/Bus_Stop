@@ -10,9 +10,9 @@ def weather():
     url = 'https://pogoda.mail.ru/prognoz/novosibirsk/'
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'lxml')
-    temperature = soup.find('div', class_= 'information__content__temperature').text
+    temperature = soup.find('div', class_='information__content__temperature').text
     temperature = int(temperature[1:-9])
-    condition = soup.find('div', class_= 'information__content__additional information__content__additional_first').find('div', class_= 'information__content__additional__item').text
+    condition = soup.find('div', class_='information__content__additional information__content__additional_first').find('div', class_='information__content__additional__item').text
     condition = condition[9:-8]
     city = 'Новосибирск'
     print(city, temperature, condition)
@@ -20,11 +20,11 @@ def weather():
     try:
         # Присоединение к базе данных
         connection = psycopg2.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=db_name,   
-            port='5434'
+            host = host,
+            user = user,
+            password = password,
+            database = db_name,   
+            port = '5434'
         )
         connection.autocommit = True
     

@@ -5,10 +5,6 @@ import time
 import psycopg2
 from config import host, user, password, db_name
 
-bus_route_dict = {'14 автобус':1, '6 автобус':12, '8 троллейбус':14, '4 троллейбус':13,  '68 автобус':4, '88 автобус':5, '16 автобус':6, 
-                  '7 троллейбус':7, '45 автобус':8, '63 маршрутное такси':9}
-
-
 
 def bus_arrival():
     url = 'https://maps.nskgortrans.ru/qr_code/qr_forecast_2.php?id=30'
@@ -30,11 +26,11 @@ def bus_arrival():
         try:
             # Присоединение к базе данных
             connection = psycopg2.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=db_name,   
-                port='5434'
+                host = host,
+                user = user,
+                password = password,
+                database = db_name,   
+                port = '5434'
             )
             connection.autocommit = True
     
@@ -42,7 +38,7 @@ def bus_arrival():
 
             bus_stop_id = 14
 
-            route_id = bus_route_dict[arrival]
+            route_id = self.bus_route_dict[arrival]
 
             route_name = arrival
  

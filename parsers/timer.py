@@ -1,5 +1,3 @@
-bus_arrival()
-
 from apscheduler.schedulers.blocking import BlockingScheduler
 from parsers.bus_stop.bus_stop_parser import bus_arrival
 from parsers.traffic.traffic_parser import traffic
