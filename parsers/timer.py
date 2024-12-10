@@ -1,17 +1,21 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from parsers.bus_stop.bus_stop_parser import bus_arrival
-from parsers.traffic.traffic_parser import traffic
-from parsers.weather.weather_parser import weather
+from parsers import WeatherParser, BusStopParser, TrafficParser
 
-scheduler_bus = BlockingScheduler()
-scheduler_bus.add_job(bus_arrival, 'interval', minutes=1)
-scheduler_bus.start()
+def run_weather_parser():
+    parser = WeatherParser()
+    data = parser.parse()
+    parser.save_to_db(data)
+def run_bus_stop_parser():
+    parser = BusStopParser()
+    data = parser.parse()
+    parser.save_to_db(data)
+def run_traffic_parser():
+    parser = TrafficParser()
+    data = parser.parse()
+    parser.save_to_db(data)
 
-scheduler_traffic = BlockingScheduler()
-scheduler_traffic.add_job(traffic, 'interval', hours=1)
-scheduler_traffic.start()
-
-
-scheduler_weather = BlockingScheduler()
-scheduler_weather.add_job(weather, 'interval', hours=3)
-scheduler_weather.start()
+scheduler = BlockingScheduler()
+scheduler.add_job(run_bus_stop_parser, 'interval', minutes=1)
+scheduler.add_job(run_traffic_parser, 'interval', hours=1)
+scheduler.add_job(run_weather_parser, 'interval', hours=3)
+scheduler.start()
