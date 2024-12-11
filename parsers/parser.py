@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 import psycopg2
 from bs4 import BeautifulSoup
 import requests
-from config import host, user, password, db_name
 
 class BaseParser(ABC):
     def __init__(self):
@@ -12,11 +11,11 @@ class BaseParser(ABC):
     def connect_to_db(self):
         try:
             self.connection = psycopg2.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=db_name,
-                port='5434'
+                host = '195.133.25.250',
+                user='admin_user',
+                password='strongpassword',
+                database='postgres',
+                port='5433'
             )
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
@@ -121,8 +120,10 @@ class TrafficParser(BaseParser):
         
     def initialize_model(self):
         try:
+            import tensorflow as tf
+            tf.keras.losses.Reduction.AUTO = tf.keras.losses.Reduction.SUM
             from tensorflow.keras.models import load_model
-            self.model = load_model('/traffic/gfgModel.h5')
+            self.model = load_model('parsers/traffic/gfgModel.h5')
         except Exception as e:
             print(f"[INFO] Error loading traffic model: {e}")
             

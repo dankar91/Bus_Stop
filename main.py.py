@@ -1,7 +1,17 @@
 from dataclasses import dataclass
 import cv2
 import numpy as np
-from bytetrack.byte_tracker import BYTETracker
+from ByteTrack.tutorials.centertrack.byte_tracker import BYTETracker
+
+class Args:
+    def __init__(self):
+        self.track_thresh = 0.25
+        self.track_buffer = 30
+        self.match_thresh = 0.8
+        self.new_thresh = 0.25
+        self.out_thresh = 0.1
+
+args = Args()
 from typing import Dict, List, Tuple
 import time
 import psycopg2
@@ -15,12 +25,12 @@ class Detection:
     track_id: int = None
 
 class DatabaseManager:
-    def __init__(self, host, user, password, db_name, port='5434'):
+    def __init__(self, host='195.133.25.250', user='admin_user', password='strongpassword', database='postgres', port='5433'):
         self.connection_params = {
             'host': host,
             'user': user,
             'password': password,
-            'database': db_name,
+            'database': database,
             'port': port
         }
         self.connection = None
@@ -40,57 +50,63 @@ class DatabaseManager:
             
         try:
             with self.connection.cursor() as cursor:
-                query = """
-                INSERT INTO public."BusStop_Stats" 
-                (timestamp, people_count, bus_count, avg_waiting_time, 
-                 min_waiting_time, max_waiting_time) 
-                VALUES (NOW(), %s, %s, %s, %s, %s)
+                # Сохраняем данные о пассажиропотоке
+                passenger_query = """
+                INSERT INTO public."Passenger_Traffic" 
+                (datetime, bus_stop_id, number_of_passenger)
+                VALUES (NOW(), %s, %s)
                 """
-                cursor.execute(query, (
-                    stats['people_count'],
-                    stats['bus_count'],
-                    stats['avg_waiting_time'],
-                    stats['min_waiting_time'],
-                    stats['max_waiting_time']
-                ))
+                cursor.execute(passenger_query, (14, stats['people_count']))
+                
+                # Если обнаружен автобус, сохраняем информацию о его прибытии
+                if stats['bus_count'] > 0:
+                    bus_query = """
+                    INSERT INTO public."Bus_Arrival"
+                    (datetime, bus_stop_id, route_id, route_name, passenger_in)
+                    VALUES (NOW(), %s, %s, %s, %s)
+                    """
+                    cursor.execute(bus_query, (14, 1, '14', stats['people_count']))
+                
+                # Сохраняем данные о времени ожидания
+                waiting_query = """
+                INSERT INTO public."Passenger_Waiting_Time"
+                (datetime, bus_stop_id, passenger_id, waiting_time_seconds, route_id)
+                VALUES (NOW(), %s, %s, %s, %s)
+                """
+                for passenger_id, waiting_time in enumerate(stats.get('waiting_times', []), 1):
+                    cursor.execute(waiting_query, (14, passenger_id, waiting_time, 1))
+                
         except Exception as e:
             print(f"[ERROR] Failed to save statistics: {e}")
 class PassengerTracker:
     def __init__(self):
-        self.tracker = BYTETracker(
-            track_thresh=0.25,
-            track_buffer=30,
-            match_thresh=0.8,
-            frame_rate=30
-        )
+        self.tracker = BYTETracker(args, frame_rate=30)
         self.passenger_times = {}  # track_id -> start_time
         self.waiting_times = []
         
     def update(self, detections: List[Detection], frame_size: Tuple[int, int]) -> List[Detection]:
-        detection_array = np.array([
-            [d.box[0], d.box[1], d.box[2], d.box[3], d.confidence, d.class_id]
+        detection_list = [
+            {'bbox': [d.box[0], d.box[1], d.box[2], d.box[3]], 
+             'score': d.confidence, 
+             'class': d.class_id}
             for d in detections
-        ])
+        ]
         
-        tracked_objects = self.tracker.update(
-            detection_array,
-            [frame_size[0], frame_size[1]],
-            [frame_size[0], frame_size[1]]
-        )
+        tracked_objects = self.tracker.step(detection_list)
         
         current_time = time.time()
         tracked_detections = []
         
         for track in tracked_objects:
-            track_id = track.track_id
-            box = track.tlbr.astype(int)
+            track_id = track['tracking_id']
+            box = track['bbox']
             
             if track_id not in self.passenger_times:
                 self.passenger_times[track_id] = current_time
                 
             tracked_detections.append(Detection(
                 box=tuple(box),
-                confidence=track.score,
+                confidence=track['score'],
                 class_id=2,  # person
                 track_id=track_id
             ))
@@ -176,16 +192,17 @@ class VideoProcessor:
     def _draw_detections(self, frame, detections: List[Detection]) -> np.ndarray:
         for detection in detections:
             color = (0, 255, 0) if detection.class_id == 0 else (255, 0, 0)
+            x1, y1, x2, y2 = map(int, detection.box)
             cv2.rectangle(frame, 
-                         (detection.box[0], detection.box[1]),
-                         (detection.box[2], detection.box[3]),
+                         (x1, y1),
+                         (x2, y2),
                          color, 2)
             
             if detection.track_id is not None:
                 waiting_time = time.time() - self.tracker.passenger_times.get(detection.track_id, time.time())
                 cv2.putText(frame,
                            f"ID: {detection.track_id} Time: {int(waiting_time)}s",
-                           (detection.box[0], detection.box[1]-10),
+                           (x1, y1-10),
                            cv2.FONT_HERSHEY_SIMPLEX,
                            0.5,
                            color,
@@ -221,12 +238,20 @@ class BusStopMonitor:
         self.video_source = video_source
         
     def run(self):
+        print(f"Opening video source: {self.video_source}")
         cap = cv2.VideoCapture(self.video_source)
+        
+        if not cap.isOpened():
+            print("Error: Could not open video source")
+            return
+            
+        print("Video capture initialized successfully")
         
         try:
             while True:
                 ret, frame = cap.read()
                 if not ret:
+                    print("End of video stream or error reading frame")
                     break
                     
                 processed_frame, stats = self.video_processor.process_frame(frame)
@@ -245,33 +270,56 @@ class BusStopMonitor:
             cv2.destroyAllWindows()
 # Пример использования:
 if __name__ == "__main__":
+    import os
+    os.environ['DISPLAY'] = ':99'
+    os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+    os.environ['OPENCV_VIDEOIO_PRIORITY_MSMF'] = '0'
+    
+    from xvfbwrapper import Xvfb
+    vdisplay = Xvfb()
+    vdisplay.start()
+    '''from parsers.parser import WeatherParser, BusStopParser, TrafficParser
+    from apscheduler.schedulers.background import BackgroundScheduler
+    
+    # Initialize parsers
+    weather_parser = WeatherParser()
+    bus_stop_parser = BusStopParser()
+    traffic_parser = TrafficParser()
+    
+    # Set up scheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(lambda: bus_stop_parser.parse() and bus_stop_parser.save_to_db(bus_stop_parser.parse()), 'interval', minutes=1)
+    scheduler.add_job(lambda: traffic_parser.parse() and traffic_parser.save_to_db(traffic_parser.parse()), 'interval', hours=1)
+    scheduler.add_job(lambda: weather_parser.parse() and weather_parser.save_to_db(weather_parser.parse()), 'interval', hours=3)
+    scheduler.start()
+    '''
     db_config = {
-        'host': 'localhost',
-        'user': 'your_user',
-        'password': 'your_password',
-        'db_name': 'your_db'
+        'host': '195.133.25.250',
+        'user': 'admin_user',
+        'password': 'strongpassword',
+        'database': 'postgres',
+        'port': '5433'
     }
     
-    # Создаем SQL таблицу если еще не создана
-    create_table_query = """
-    CREATE TABLE IF NOT EXISTS public."BusStop_Stats" (
-        timestamp TIMESTAMP NOT NULL,
-        people_count INTEGER NOT NULL,
-        bus_count INTEGER NOT NULL,
-        avg_waiting_time FLOAT NOT NULL,
-        min_waiting_time FLOAT NOT NULL,
-        max_waiting_time FLOAT NOT NULL
-    );
-    """
-    
+    # Инициализируем подключение к БД
     with psycopg2.connect(**db_config) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(create_table_query)
+        print("Database connected successfully")
+    
+    print("Loading YOLO model...")
+    from ultralytics import YOLO
+    
+    model = YOLO("models/best_l_last.pt")
+    print("YOLO model loaded successfully")
+    
+    co_range_list = [
+        {'x_start': 0, 'x_end': 100, 'y_start': 0, 'y_end': 100}
+    ]
+    print("Starting video monitoring...")
     
     monitor = BusStopMonitor(
-        video_source=0,  # или путь к видео файлу
-        model=your_yolo_model,
-        co_range_list=your_co_range_list,
+        video_source='Samples/BusStop_Trim_3.mp4',  # или путь к видео файлу
+        model=model,
+        co_range_list=co_range_list,
         db_config=db_config
     )
     
