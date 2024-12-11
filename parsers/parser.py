@@ -123,7 +123,7 @@ class TrafficParser(BaseParser):
             import tensorflow as tf
             tf.keras.losses.Reduction.AUTO = tf.keras.losses.Reduction.SUM
             from tensorflow.keras.models import load_model
-            self.model = load_model('parsers/traffic/gfgModel.h5')
+            self.model = load_model('parsers/traffic/gfgModel.keras')
         except Exception as e:
             print(f"[INFO] Error loading traffic model: {e}")
             

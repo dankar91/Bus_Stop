@@ -317,7 +317,7 @@ if __name__ == "__main__":
     print("Starting video monitoring...")
     
     monitor = BusStopMonitor(
-        video_source='Samples/BusStop_Trim_3.mp4',  # или путь к видео файлу
+        video_source='samples/BusStop_Trim_3.mp4',  # камера или путь к видео файлу
         model=model,
         co_range_list=co_range_list,
         db_config=db_config
