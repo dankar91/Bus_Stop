@@ -34,8 +34,7 @@ def create_database():
         datetime TIMESTAMP NOT NULL,
         bus_stop_id INTEGER REFERENCES public."Bus_stops"(bus_stop_id),
         route_id INTEGER REFERENCES public."Routes"(route_id),
-        route_name VARCHAR(50) NOT NULL,
-        passenger_in INTEGER NOT NULL
+        route_name VARCHAR(50) NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS public."Passenger_Traffic" (
