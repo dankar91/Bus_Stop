@@ -1,21 +1,14 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
-from parsers import WeatherParser, BusStopParser, TrafficParser
+from parser import WeatherParser, BusStopParser, TrafficParser
+from apscheduler.schedulers.background import BackgroundScheduler
 
-def run_weather_parser():
-    parser = WeatherParser()
-    data = parser.parse()
-    parser.save_to_db(data)
-def run_bus_stop_parser():
-    parser = BusStopParser()
-    data = parser.parse()
-    parser.save_to_db(data)
-def run_traffic_parser():
-    parser = TrafficParser()
-    data = parser.parse()
-    parser.save_to_db(data)
+# Инициализируем парсеры
+weather_parser = WeatherParser()
+bus_stop_parser = BusStopParser()
+traffic_parser = TrafficParser()
 
-scheduler = BlockingScheduler()
-scheduler.add_job(run_bus_stop_parser, 'interval', minutes=1)
-scheduler.add_job(run_traffic_parser, 'interval', hours=1)
-scheduler.add_job(run_weather_parser, 'interval', hours=3)
+# Настроим расписание
+scheduler = BackgroundScheduler()
+scheduler.add_job(lambda: bus_stop_parser.parse() and bus_stop_parser.save_to_db(bus_stop_parser.parse()), 'interval', minutes=1)
+scheduler.add_job(lambda: traffic_parser.parse() and traffic_parser.save_to_db(traffic_parser.parse()), 'interval', hours=1)
+scheduler.add_job(lambda: weather_parser.parse() and weather_parser.save_to_db(weather_parser.parse()), 'interval', hours=3)
 scheduler.start()

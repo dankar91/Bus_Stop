@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import psycopg2
 from bs4 import BeautifulSoup
 import requests
+from config import host, user, password, database, port, bus_stop_id
+
 
 class BaseParser(ABC):
     def __init__(self):
@@ -11,11 +13,11 @@ class BaseParser(ABC):
     def connect_to_db(self):
         try:
             self.connection = psycopg2.connect(
-                host = '195.133.25.250',
-                user='admin_user',
-                password='strongpassword',
-                database='postgres',
-                port='5433'
+                host = host,
+                user = user,
+                password = password,
+                database = database,
+                port = port
             )
             self.connection.autocommit = True
             self.cursor = self.connection.cursor()
@@ -87,7 +89,7 @@ class BusStopParser(BaseParser):
             
             if arrival:
                 return {
-                    'bus_stop_id': 14,
+                    'bus_stop_id': bus_stop_id,
                     'route_id': self.bus_route_dict.get(arrival),
                     'route_name': arrival
                 }
@@ -117,16 +119,17 @@ class TrafficParser(BaseParser):
         self.driver = None
         self.initialize_model()
         self.initialize_driver()
-        
+
     def initialize_model(self):
         try:
             import tensorflow as tf
+            from tensorflow.keras.preprocessing import image
             tf.keras.losses.Reduction.AUTO = tf.keras.losses.Reduction.SUM
             from tensorflow.keras.models import load_model
-            self.model = load_model('parsers/traffic/gfgModel.keras')
+            self.model = load_model('/parsers/traffic/gfgModel.keras', compile=False)
         except Exception as e:
             print(f"[INFO] Error loading traffic model: {e}")
-            
+
     def initialize_driver(self):
         try:
             from selenium import webdriver
@@ -136,46 +139,71 @@ class TrafficParser(BaseParser):
             self.driver = webdriver.Firefox(options=opts)
         except Exception as e:
             print(f"[INFO] Error initializing webdriver: {e}")
-            
+
     def parse(self):
         try:
-            driver.get("https://yandex.ru/maps/65/novosibirsk/probki/?ll=82.920430%2C55.030199&source=traffic&z=12")
+            # Загружаем страницу
+            self.driver.get("https://yandex.ru/maps/65/novosibirsk/probki/?ll=82.920430%2C55.030199&source=traffic&z=12")
             sleep(5)
-            driver.save_screenshot('busstop_project/parsers/traffic/screenie.png')
-            img = cv2.imread("busstop_project/parsers/traffic/screenie.png")
+
+            # Делаем скриншот
+            screenshot_path = '/parsers/traffic/screenie.png'
+            if not self.driver.save_screenshot(screenshot_path):
+                raise ValueError("[INFO] Screenshot not saved successfully")
+
+            # Загружаем скриншот с помощью OpenCV
+            img = cv2.imread(screenshot_path)
+            if img is None:
+                raise ValueError("[INFO] Failed to read screenshot with OpenCV")
+
+            # Обрезаем изображение
             crop_img = img[120:170, 0:200]
-            cv2.imwrite("busstop_project/parsers/traffic/croped_scr.png", crop_img)
+            crop_path = '/parsers/traffic/croped_scr.png'
+            cv2.imwrite(crop_path, crop_img)
 
-            img = image.load_img  (
-            'busstop_project/parsers/traffic/croped_scr.png', target_size=(img_height, img_width)
-            )
+            # Загружаем обрезанное изображение
+            img_height, img_width = 150, 150
+            img = image.load_img(crop_path, target_size=(img_height, img_width))
+            if img is None:
+                raise ValueError("[INFO] Failed to load cropped image")
+
+            # Используем ожидаемый размер входного изображения
+            img = image.load_img(crop_path, target_size=(180, 180))
             img_array = image.img_to_array(img)
-            img_array = tf.expand_dims(img_array, 0)
+            img_array = tf.expand_dims(img_array, 0) 
 
-            predictions = model.predict(img_array)
+            # Предсказание модели
+            predictions = self.model.predict(img_array)
+            if predictions is None or len(predictions) == 0:
+                raise ValueError("[INFO] Model returned no predictions")
+
+            # Обработка предсказаний
+            class_names = ['0', '1', '10', '2', '3', '4', '5', '6', '7', '8', '9']
             score = tf.nn.softmax(predictions[0])
-
-            print(
-                "This image most likely belongs to {} with a {:.2f} percent confidence."
-                .format(class_names[np.argmax(score)], 100 * np.max(score))
-            )
             traffic_point = class_names[np.argmax(score)]
             city = 'Новосибирск'
+
+
+            print(
+                f"This image most likely belongs to {traffic_point} with a "
+                f"{100 * np.max(score):.2f}% confidence."
+            )
             return {
                 'city': city,
                 'traffic_point': traffic_point
             }
+
         except Exception as e:
             print(f"[INFO] Error parsing traffic: {e}")
             return None
-            
+
     def save_to_db(self, data):
         if not data:
             return False
         try:
             if self.connect_to_db():
                 query = 'INSERT INTO public."Traffic" VALUES (NOW(), %s, %s)'
-                self.cursor.execute(query, (data['city'], data['traffic_point']))
+                self.cursor.execute(query, (data['traffic_point'], (data['city'])))
                 print("[INFO] Traffic data was successfully inserted")
                 return True
         except Exception as e:
@@ -183,7 +211,7 @@ class TrafficParser(BaseParser):
         finally:
             self.close_connection()
         return False
-        
+
     def __del__(self):
         if self.driver:
             self.driver.quit()
