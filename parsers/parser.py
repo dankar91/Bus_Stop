@@ -35,16 +35,17 @@ class BaseParser(ABC):
 class WeatherParser(BaseParser):
     def __init__(self):
         super().__init__()
-        self.url = 'https://pogoda.mail.ru/prognoz/novosibirsk/'
+        self.url = 'https://api.weatherxu.com/v1/weather?api_key=ea6d7a122b07d818e6a165c79e24d55b'
         
     def parse(self):
         try:
-            r = requests.get(self.url)
-            soup = BeautifulSoup(r.text, 'lxml')
-            temperature = soup.find('div', class_='information__content__temperature').text
-            temperature = int(temperature[1:-9])
-            condition = soup.find('div', class_='information__content__additional information__content__additional_first').find('div', class_='information__content__additional__item').text
-            condition = condition[9:-8]
+            lat = 55.0415
+            lon = 82.9346
+            url_full = f'{self.url}&lat={lat}&lon={lon}'
+            json_data = requests.get(url_full).json()
+            formatted_data = json_data['data']['currently']
+            temperature = int(formatted_data['temperature'])
+            condition = formatted_data['icon']
             city = 'Новосибирск'
             return {'temperature': temperature, 'condition': condition, 'city': city}
         except Exception as e:
