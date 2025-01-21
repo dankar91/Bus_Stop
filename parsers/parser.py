@@ -36,7 +36,34 @@ class WeatherParser(BaseParser):
     def __init__(self):
         super().__init__()
         self.url = 'https://api.weatherxu.com/v1/weather?api_key=ea6d7a122b07d818e6a165c79e24d55b'
-        
+        self.weather_conditions = {
+    "clear": "ясно",
+    "partly_cloudy": "частично облачно",
+    "mostly_cloudy": "преимущественно облачно",
+    "cloudy": "облачно",
+    "light_rain": "небольшой дождь",
+    "rain": "дождь",
+    "heavy_rain": "сильный дождь",
+    "freezing_rain": "ледяной дождь",
+    "thunderstorm": "гроза",
+    "thunder_rain": "дождь с грозой",
+    "light_snow": "небольшой снег",
+    "snow": "снег",
+    "heavy_snow": "сильный снег",
+    "sleet": "дождь с морозом, ледяной дождь",
+    "hail": "град",
+    "windy": "ветрено",
+    "fog": "туман",
+    "mist": "дымка",
+    "haze": "лёгкая дымка",
+    "smoke": "дым",
+    "dust": "пыль",
+    "tornado": "торнадо",
+    "tropical_storm": "тропический шторм",
+    "hurricane": "ураган",
+    "sandstorm": "песчаная буря",
+    "blizzard": "метель"
+}
     def parse(self):
         try:
             lat = 55.0415
@@ -45,7 +72,7 @@ class WeatherParser(BaseParser):
             json_data = requests.get(url_full).json()
             formatted_data = json_data['data']['currently']
             temperature = int(formatted_data['temperature'])
-            condition = formatted_data['icon']
+            condition = weather_conditions.get(formatted_data['icon'])
             city = 'Новосибирск'
             return {'temperature': temperature, 'condition': condition, 'city': city}
         except Exception as e:
