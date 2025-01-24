@@ -38,7 +38,7 @@ class WeatherParser(BaseParser):
         self.url = 'https://api.weatherxu.com/v1/weather?api_key=ea6d7a122b07d818e6a165c79e24d55b'
         self.weather_conditions = {
     "clear": "ясно",
-    "partly_cloudy": "частично облачно",
+    "partly_cloudy": "переменная облачность",
     "mostly_cloudy": "преимущественно облачно",
     "cloudy": "облачно",
     "light_rain": "небольшой дождь",
