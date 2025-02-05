@@ -1,5 +1,5 @@
-![alt text](/Presentation/Слайд1.JPG)
-![alt text](/Presentation/Слайд2.JPG)
+![alt text](Presentation/Слайд1.JPG)
+![alt text](Presentation/Слайд2.JPG)
 ![alt text](/Presentation/Слайд3.JPG)
 ![alt text](/Presentation/Слайд4.JPG)
 ![alt text](/Presentation/Слайд5.JPG)
