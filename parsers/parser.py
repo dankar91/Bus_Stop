@@ -72,7 +72,7 @@ class WeatherParser(BaseParser):
             json_data = requests.get(url_full).json()
             formatted_data = json_data['data']['currently']
             temperature = int(formatted_data['temperature'])
-            condition = weather_conditions.get(formatted_data['icon'])
+            condition = self.weather_conditions.get(formatted_data['icon'])
             city = 'Новосибирск'
             return {'temperature': temperature, 'condition': condition, 'city': city}
         except Exception as e:
