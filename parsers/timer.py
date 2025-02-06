@@ -1,11 +1,12 @@
 from parser import WeatherParser, BusStopParser, TrafficParser
-from apscheduler.schedulers.background import BackgroundScheduler
+#from apscheduler.schedulers.background import BackgroundScheduler
 
 # Инициализируем парсеры
 weather_parser = WeatherParser()
 bus_stop_parser = BusStopParser()
 traffic_parser = TrafficParser()
 
+# Запускаем парсеры
 weather_parser.parse()
 weather_parser.save_to_db(weather_parser.parse())
 
@@ -14,6 +15,7 @@ bus_stop_parser.save_to_db(bus_stop_parser.parse())
 
 traffic_parser.parse() 
 traffic_parser.save_to_db(traffic_parser.parse())
+
 
 # Настроим расписание
 scheduler = BackgroundScheduler()

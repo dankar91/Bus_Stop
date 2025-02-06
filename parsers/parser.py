@@ -154,7 +154,7 @@ class TrafficParser(BaseParser):
             from tensorflow.keras.preprocessing import image
             tf.keras.losses.Reduction.AUTO = tf.keras.losses.Reduction.SUM
             from tensorflow.keras.models import load_model
-            self.model = load_model('/parsers/traffic/gfgModel.keras', compile=False)
+            self.model = load_model('traffic/gfgModel.keras', compile=False)
         except Exception as e:
             print(f"[INFO] Error loading traffic model: {e}")
 
@@ -169,13 +169,18 @@ class TrafficParser(BaseParser):
             print(f"[INFO] Error initializing webdriver: {e}")
 
     def parse(self):
+        from time import sleep
+        import cv2
+        from tensorflow.keras.preprocessing import image
+        import tensorflow as tf
+        import numpy as np
         try:
             # Загружаем страницу
             self.driver.get("https://yandex.ru/maps/65/novosibirsk/probki/?ll=82.920430%2C55.030199&source=traffic&z=12")
             sleep(5)
 
             # Делаем скриншот
-            screenshot_path = '/parsers/traffic/screenie.png'
+            screenshot_path = 'traffic/screenie.png'
             if not self.driver.save_screenshot(screenshot_path):
                 raise ValueError("[INFO] Screenshot not saved successfully")
 
@@ -186,7 +191,7 @@ class TrafficParser(BaseParser):
 
             # Обрезаем изображение
             crop_img = img[120:170, 0:200]
-            crop_path = '/parsers/traffic/croped_scr.png'
+            crop_path = 'traffic/croped_scr.png'
             cv2.imwrite(crop_path, crop_img)
 
             # Загружаем обрезанное изображение
