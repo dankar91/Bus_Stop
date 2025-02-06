@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import psycopg2
 from bs4 import BeautifulSoup
 import requests
-from config import host, user, password, database, port, bus_stop_id
+from config import host, user, password, database, port, bus_stop_id, Weather_API_key
 
 
 class BaseParser(ABC):
@@ -35,7 +35,7 @@ class BaseParser(ABC):
 class WeatherParser(BaseParser):
     def __init__(self):
         super().__init__()
-        self.url = 'https://api.weatherxu.com/v1/weather?api_key=ea6d7a122b07d818e6a165c79e24d55b'
+        self.url = f'https://api.weatherxu.com/v1/weather?api_key={Weather_API_key}'
         self.weather_conditions = {
     "clear": "ясно",
     "partly_cloudy": "переменная облачность",
