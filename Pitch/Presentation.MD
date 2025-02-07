@@ -7,6 +7,7 @@
 ![alt text](Presentation/Слайд8.JPG)
 ![alt text](Presentation/Слайд9.JPG)
 ![alt text](Presentation/Слайд10.JPG)
+![alt text](Presentation/11_gif.gif)
 ![alt text](Presentation/Слайд11.JPG)
 ![alt text](Presentation/Слайд12.JPG)
 ![alt text](Presentation/Слайд13.JPG)
