@@ -110,14 +110,25 @@ _____________________
 1. **Клонирование репозитория**
 ```
 git clone https://github.com/dankar91/Bus_Stop.git
-cd Bus_Stop
 ```
 
 2. **Установка зависимостей**
 ```
    pip install -r requirements.txt
 ```
-3. 
+
+3. **Настройка файла конфигурации**
+```
+# Необходимо создать файл config.py в корне проекта, где определить следующие переменные
+host = '000.00.00.00' # адрес хоста базы данных
+user = 'user' # имя пользователя
+password = 'password' # пароль
+database = 'postgres' # наименование базы данных
+port = '5434' # порт 
+bus_stop_id = 1 # id автобусной остановки, на которой установлена камера
+Weather_API_key = "YOUR_Weather_API_key" # ключ API https://weatherxu.com/
+```
+
 
 
 
