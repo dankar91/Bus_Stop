@@ -6,7 +6,7 @@
 ### Сбор данных с остановок
 ### Сбор данных о фактах прибытия общественного транспорта на остановку
 ### Сбор данных о погоде
-3## Сбор данных о трафике
+### Сбор данных о трафике
 ## Обработка и разметка собранных данных
 ![ezgif com-optimize](https://github.com/user-attachments/assets/aa6e67ee-0007-4790-b321-23bca3d8ee64)
 https://app.roboflow.com/mfti/public-transport-stops/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
