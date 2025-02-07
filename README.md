@@ -63,9 +63,9 @@ _____________________
 
 
 # [📊 Презентация проекта](https://github.com/dankar91/Bus_Stop/blob/main/Pitch/Presentation.MD)
-
+<!--
 # [💡Описание реализации](https://github.com/dankar91/Bus_Stop/blob/main/Pitch/Project_implementation.MD)
-
+-->
 
 # 🛠️ Технологический стeк
 
