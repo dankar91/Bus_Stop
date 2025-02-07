@@ -2,7 +2,6 @@
 ![alt text](Presentation/Слайд2.JPG)
 ![alt text](Presentation/Слайд3.JPG)
 ![alt text](Presentation/Слайд4.JPG)
-![alt text](Presentation/Слайд5.JPG)
 ![alt text](Presentation/Слайд6.JPG)
 ![alt text](Presentation/Слайд7.JPG)
 ![alt text](Presentation/Слайд8.JPG)
