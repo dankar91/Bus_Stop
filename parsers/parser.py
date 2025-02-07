@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 import psycopg2
 from bs4 import BeautifulSoup
 import requests
-from config import host, user, password, database, port, bus_stop_id, Weather_API_key
+from config import host, user, password, database, port, bus_stop_id, Weather_API_key, city
 
-
+# Создаем общий класс для парсеров
 class BaseParser(ABC):
     def __init__(self):
         self.connection = None
@@ -31,7 +31,8 @@ class BaseParser(ABC):
             self.cursor.close()
         if self.connection:
             self.connection.close()
-            
+
+# Создаем класс для парсера погоды            
 class WeatherParser(BaseParser):
     def __init__(self):
         super().__init__()
@@ -73,12 +74,12 @@ class WeatherParser(BaseParser):
             formatted_data = json_data['data']['currently']
             temperature = int(formatted_data['temperature'])
             condition = self.weather_conditions.get(formatted_data['icon'])
-            city = 'Новосибирск'
             return {'temperature': temperature, 'condition': condition, 'city': city}
         except Exception as e:
             print(f"[INFO] Error parsing weather: {e}")
             return None
-            
+    
+    # Сохраняем в базу данных        
     def save_to_db(self, data):
         if not data:
             return False
@@ -94,6 +95,7 @@ class WeatherParser(BaseParser):
             self.close_connection()
         return False
 
+# Создаем класс для парсера отслеживания автобусов
 class BusStopParser(BaseParser):
     def __init__(self):
         super().__init__()
@@ -125,7 +127,8 @@ class BusStopParser(BaseParser):
         except Exception as e:
             print(f"[INFO] Error parsing bus stop: {e}")
             return None
-            
+
+    # Сохраняем в базу данных        
     def save_to_db(self, data):
         if not data:
             return False
@@ -140,6 +143,8 @@ class BusStopParser(BaseParser):
         finally:
             self.close_connection()
         return False
+    
+# Создаем класс для парсера трафика
 class TrafficParser(BaseParser):
     def __init__(self):
         super().__init__()
@@ -148,6 +153,7 @@ class TrafficParser(BaseParser):
         self.initialize_model()
         self.initialize_driver()
 
+    # Инициализируем модель
     def initialize_model(self):
         try:
             import tensorflow as tf
@@ -158,6 +164,7 @@ class TrafficParser(BaseParser):
         except Exception as e:
             print(f"[INFO] Error loading traffic model: {e}")
 
+    # Инициализируем веб-драйвер
     def initialize_driver(self):
         try:
             from selenium import webdriver
@@ -214,8 +221,6 @@ class TrafficParser(BaseParser):
             class_names = ['0', '1', '10', '2', '3', '4', '5', '6', '7', '8', '9']
             score = tf.nn.softmax(predictions[0])
             traffic_point = class_names[np.argmax(score)]
-            city = 'Новосибирск'
-
 
             print(
                 f"This image most likely belongs to {traffic_point} with a "
@@ -230,6 +235,7 @@ class TrafficParser(BaseParser):
             print(f"[INFO] Error parsing traffic: {e}")
             return None
 
+    # Сохраняем в базу данных
     def save_to_db(self, data):
         if not data:
             return False
