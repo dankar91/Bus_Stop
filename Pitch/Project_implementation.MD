@@ -10,5 +10,7 @@
 ![Пример разметки](https://i.postimg.cc/FFZy0drS/image.gif)
 # Дообучение модели компьютерного зрения
 # Настройка трекинга пассажиров
+![Sample](https://github.com/user-attachments/assets/69770a81-ac55-447d-98b7-a4629a33de3d)
 # Организация системы хранения и обработки данных
 # Визуализация
+![image](https://github.com/user-attachments/assets/0d43cf30-c875-46ff-bd7c-740d0112e78e)
