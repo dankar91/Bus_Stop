@@ -30,7 +30,7 @@ class PassengerTracker:
         
     def update(self, detections: np.ndarray, frame_size: Tuple[int, int], db_manager) -> List[Detection]:
         self.current_frame += 1
-        # Prepare input for ByteTracker
+        
         if len(detections) > 0:
             scores = detections[:, 4]
             class_ids = detections[:, 5]
@@ -54,20 +54,20 @@ class PassengerTracker:
             box = track.tlbr
             
             if track_id not in self.passenger_frames:
-                # First time we see this passenger
+                # Если видим пассажира в первый раз
                 self.passenger_frames[track_id] = {
                     'start_frame': self.current_frame,
                     'last_seen': self.current_frame,
                     'is_tracked': True
                 }
                 print(f"[NEW] Passenger ID {track_id} first detected at frame {self.current_frame}")
-                # Save new passenger to database
+                # Сохраняем нового пассажира в базу данных
                 try:
                     db_manager.save_passenger_appearance(track_id, bus_stop_id)
                 except Exception as e:
                     print(f"Failed to save passenger {track_id}: {e}")
             else:
-                # Update only last_seen for existing passengers
+                # Обновляем только столбец last_seen для каждого пассажира
                 self.passenger_frames[track_id]['last_seen'] = self.current_frame
                 
             tracked_detections.append(Detection(

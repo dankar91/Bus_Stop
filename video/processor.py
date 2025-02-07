@@ -85,7 +85,7 @@ class VideoProcessor:
                    2)
         
         for detection in detections:
-            if detection.class_id == 2:  # Only for people
+            if detection.class_id == 2:  # только для людей
                 is_inside_frame = True
                 if self.co_range_list is not None:
                     xmin, ymin, xmax, ymax = detection.box
@@ -111,7 +111,7 @@ class VideoProcessor:
                                   0.5,
                                   (255, 0, 0),
                                   2)
-            elif detection.class_id == 0:  # For bus
+            elif detection.class_id == 0:  # для автобусов
                 x1, y1, x2, y2 = map(int, detection.box)
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
         
@@ -188,7 +188,7 @@ class VideoProcessor:
                             'last_frame': self.frame_counter
                         })
 
-        # Check for departed passengers
+        
         for track_id, passenger_data in list(self.tracker.passenger_frames.items()):
             if passenger_data['is_tracked']:
                 frames_not_seen = self.frame_counter - passenger_data['last_seen']
