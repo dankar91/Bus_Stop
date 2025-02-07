@@ -114,7 +114,7 @@ git clone https://github.com/dankar91/Bus_Stop.git
 
 2. **Установка зависимостей**
 ```
-   pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 3. **Настройка файла конфигурации**
@@ -132,7 +132,7 @@ Weather_API_key = "YOUR_Weather_API_key" # ключ API https://weatherxu.com/
 4. **Настройка базы данных**
 Для создания необходимых таблиц выполните команду:
 ```
-python  database/create_db
+python  database/create_db.py
 ```
 
 5 **Настройка парсеров**
