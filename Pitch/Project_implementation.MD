@@ -8,7 +8,7 @@
 ## Сбор данных о трафике
 # Обработка и разметка собранных данных
 ![ezgif com-optimize](https://github.com/user-attachments/assets/aa6e67ee-0007-4790-b321-23bca3d8ee64)
-
+https://app.roboflow.com/mfti/public-transport-stops/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
 # Дообучение модели компьютерного зрения
 # Настройка трекинга пассажиров
 ![Sample](https://github.com/user-attachments/assets/69770a81-ac55-447d-98b7-a4629a33de3d)
