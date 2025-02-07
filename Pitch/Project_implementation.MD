@@ -1,5 +1,8 @@
 <div align="center"> <h1><b>Описание разработки проекта</b></h1></div>
 
+В работе
+
+<!--
 ## Содержание
 ## Описание MVP
 ## Сбор данных
@@ -16,3 +19,4 @@ https://app.roboflow.com/mfti/public-transport-stops/browse?queryText=&pageSize=
 ## Организация системы хранения и обработки данных
 ## Визуализация
 ![image](https://github.com/user-attachments/assets/0d43cf30-c875-46ff-bd7c-740d0112e78e)
+-->
